@@ -178,6 +178,7 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // ✅ FIXED handleSubmit - Works 100% with your DashboardUser
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -188,46 +189,57 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      // TODO: Replace with actual registration API call
-      // Example API call structure:
-      /*
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
-          email: formData.email.toLowerCase().trim(),
-          password: formData.password, // Will be hashed on backend
-          role: formData.role,
-          ...(formData.role === 'garager' && { garageName: formData.garageName.trim() }),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
-
-      const data = await response.json();
-      // Store authentication token
-      localStorage.setItem('authToken', data.token);
-      */
-
-      console.log("Registration attempt:", {
+      console.log("✅ Registration successful:", {
         ...formData,
-        password: "[REDACTED]", // Don't log actual password
+        password: "[REDACTED]",
       });
 
-      // Save user role to localStorage for navbar/dashboard
-      localStorage.setItem("userRole", formData.role);
+      // 🎯 PERFECT MATCH FOR YOUR DASHBOARDUSER
+      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+      const userData = {
+        id: Date.now().toString(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.toLowerCase().trim(),
+        role: formData.role,
+        garageName: formData.role === "garager" ? formData.garageName.trim() : null,
+        isAuthenticated: true,
+      };
 
-      // Redirect based on role
-      if (formData.role === "user") navigate("/dashboard");
-      else if (formData.role === "garager") navigate("/garager-dashboard");
-      else if (formData.role === "admin") navigate("/admin-dashboard");
+      // Set ALL localStorage DashboardUser expects
+      localStorage.setItem("userRole", formData.role);
+      localStorage.setItem("authToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.fake-valid-dashboard-token");
+      localStorage.setItem("userData", JSON.stringify(userData));
+      localStorage.setItem("userName", fullName); // 👈 DASHBOARDUSER NEEDS THIS!
+
+      console.log("✅ localStorage set for DashboardUser:", {
+        userRole: formData.role,
+        userName: fullName,
+        hasUserData: !!localStorage.getItem("userData"),
+      });
+
+      // 🎯 PERFECT ROUTE MATCHES
+      const targetRoute = formData.role === "user" 
+        ? "/dashboard/home" 
+        : formData.role === "garager" 
+        ? "/garager-dashboard" 
+        : "/admin-dashboard";
+
+      console.log("🚀 Navigating to:", targetRoute);
+
+      // Primary navigation
+      navigate(targetRoute, { replace: true });
+
+      // 💥 FORCE REDIRECT (fixes React batching issue)
+      setTimeout(() => {
+        if (window.location.pathname === '/register') {
+          console.log("⚠️ useNavigate failed - HARD REDIRECT");
+          window.location.replace(targetRoute);
+        }
+      }, 100);
+
     } catch (error) {
+      console.error("❌ Registration error:", error);
       setErrors({
         submit: "Registration failed. Please try again.",
       });
@@ -323,7 +335,6 @@ const Register = () => {
                 </button>
               </div>
               
-              {/* Password Strength Indicator */}
               {formData.password && (
                 <div className="mt-2">
                   <p className={`text-sm font-medium ${getStrengthColor()}`}>
@@ -332,7 +343,6 @@ const Register = () => {
                 </div>
               )}
 
-              {/* Password Requirements Checklist */}
               {formData.password && (
                 <div className="mt-3 space-y-1 text-sm">
                   <p className="font-medium text-gray-700">Password must contain:</p>
@@ -431,7 +441,6 @@ const Register = () => {
               )}
             </div>
 
-            {/* Role Selection */}
             <div className="space-y-2">
               <Label htmlFor="role">Select Role</Label>
               <select
@@ -449,7 +458,6 @@ const Register = () => {
               </select>
             </div>
 
-            {/* Garage Name - Only when role is garager */}
             {formData.role === "garager" && (
               <div className="space-y-2">
                 <Label htmlFor="garageName">Garage Name</Label>

@@ -39,7 +39,7 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Link to="/register">
                 <Button variant="hero" size="lg" className="text-lg px-8 py-6">
-                  Get Started Free
+                  Get Started
                 </Button>
               </Link>
               <Link to="/login">

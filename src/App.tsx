@@ -37,7 +37,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* User Dashboard routes */}
+          {/* User Dashboard - FIXED NESTED ROUTING */}
           <Route path="/dashboard" element={<DashboardUser />}>
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<Home />} />
@@ -45,6 +45,7 @@ const App = () => (
             <Route path="emergency" element={<EmergencyStatus />} />
             <Route path="history" element={<History />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="*" element={<Navigate to="home" replace />} />
           </Route>
 
           {/* Garager Dashboard */}
@@ -53,7 +54,7 @@ const App = () => (
           {/* Admin Dashboard */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
-          {/* Catch-all */}
+          {/* Catch-all 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
